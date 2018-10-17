@@ -1,65 +1,68 @@
 from selenium import webdriver
 
+#Webbrowser startet und Website aufrufen.
 browser = webdriver.Chrome()
 browser.get('http://10.163.18.33/itm/bbtest-gehaltszuschlag.html')
 
+#HTML nach IDs suchen und in eine Variable packen
 salaryInput = browser.find_element_by_id('gehalt')
 ageInput = browser.find_element_by_id('alter')
 resultParagraph = browser.find_element_by_id('ergebnis')
 calculateButton = browser.find_element_by_tag_name('button')
 
+#mögliche Ergebnis Ausgaben zum Vergleichen deklarieren und initialiseren
 noMoneyResult = 'Ergebnis: Zuschlag 0 €'
 muchMoneyResult = 'Ergebnis: Zuschlag 100 €'
 missingEntryResult = 'Ergebnis: MISSING_ENTRY'
 
 
-def testSite(alter, gehalt, result):
+#Allgemeine Methode zum Testen der Seite
+def testSite(age, salary, result):
     salaryInput.clear()
     ageInput.clear()
-    salaryInput.send_keys(gehalt)
-    ageInput.send_keys(alter)
+    salaryInput.send_keys(salary)
+    ageInput.send_keys(age)
     calculateButton.click()
     if resultParagraph.text == result:
         return True
     else:
         return False
 
-
-
+# Testet die Grenzwerte für den Fall, dass es einen Zuschlag geben soll.
 def testMuchMoney(): 
-    res = True
-    res = res and testSite(30,0,muchMoneyResult)
-    res = res and testSite(30,2499,muchMoneyResult)
-    res = res and testSite(50,0,muchMoneyResult)
-    res = res and testSite(50,2499,muchMoneyResult)
+    res = testSite(30,0,muchMoneyResult)\
+    and testSite(30,2499,muchMoneyResult) \
+    and testSite(50,0,muchMoneyResult)\
+    and testSite(50,2499,muchMoneyResult)
+    
     if res:
-        print(muchMoneyResult + ' bestanden!')
+        print('Test '+ muchMoneyResult + ' bestanden!')
     else:
-        print(muchMoneyResult + ' nicht bestanden!')
+        print('Test '+ muchMoneyResult + ' nicht bestanden!')
 
+# Testet die Grenzwerte für den Fall, dass es keinen Zuschlag geben soll.
 def testNoMoney(): 
-    res = True
-    res = res and testSite(29,1500,noMoneyResult)
-    res = res and testSite(30,2501,noMoneyResult)
-    res = res and testSite(50,2501,noMoneyResult)
+    res = testSite(29,1500,noMoneyResult)\
+    and testSite(30,2501,noMoneyResult)\
+    and testSite(50,2501,noMoneyResult)
+    
     if res:
-        print(noMoneyResult + ' bestanden!')
+        print('Test '+ noMoneyResult + ' bestanden!')
     else:
-        print(noMoneyResult + ' nicht bestanden!')
+        print('Test '+ noMoneyResult + ' nicht bestanden!')
 
+# Testet die Fälle in denen ein Eintrag fehlt.
 def testMissingEntry(): 
-    res = True
-    res = res and testSite('','', missingEntryResult)
-    res = res and testSite(30,'', missingEntryResult)
-    res = res and testSite('',2400, missingEntryResult)
+    res = testSite('','', missingEntryResult)\
+    and testSite(30,'', missingEntryResult)\
+    and testSite('',2400, missingEntryResult)
 
     if res:
-        print(missingEntryResult + ' bestanden!')
+        print('Test '+ missingEntryResult + ' bestanden!')
     else:
-        print(missingEntryResult + ' nicht bestanden!')
+        print('Test '+ missingEntryResult + ' nicht bestanden!')
 
-
+#
 testMuchMoney()
 testNoMoney()
 testMissingEntry()
-
